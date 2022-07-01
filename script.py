@@ -4,73 +4,8 @@
 import matplotlib.pyplot as plt
 import json, curses, random, time
 from queue import Queue
-
-class Tile:
-    def __init__(self, name, edges) :
-        self.name = name
-        self.edges = edges #up right down left
-        self.up = []
-        self.right = []
-        self.down = []
-        self.left = []
-    
-    def make_adjacencies(self, tiles):
-        for tile in tiles:
-            if(self.edges[0] == tile.edges[2]):
-                self.up.append(tile.name)
-            if(self.edges[1] == tile.edges[3]):
-                self.right.append(tile.name)
-            if(self.edges[2] == tile.edges[0]):
-                self.down.append(tile.name)
-            if(self.edges[3] == tile.edges[1]):
-                self.left.append(tile.name)
-    
-    @staticmethod
-    def decode_tile(json_tile: dict):
-        tile = Tile(json_tile["name"],json_tile["edges"])
-        tile.up = json_tile["up"]
-        tile.right = json_tile["right"]
-        tile.down = json_tile["down"]
-        tile.left = json_tile["left"]
-        return tile
-    
-    @staticmethod
-    def decode_json(json_txt):
-        tiles = []
-        for tile_dict in json.loads(json_txt):
-            tiles.append(Tile.decode_tile(tile_dict))
-        return tiles
         
-class Cell:
-    def __init__(self, *options):
-        self.options = list(options)
-        self.collapsed = False
-        self.state = None
-    
-    def collapse(self):
-        self.state = random.choice(self.options)
-        self.collapsed = True
-        self.options = [self.state]
-    
-    def update(self):
-        if len(self.options) == 1:
-            self.collapse()
-        
-def gen_graph(row,col,names):
-    graph = [] #using a 1d graph for easier sorting (by least entropy)
-    for j in range(0,row*col):
-        graph.append(Cell(*names))
-    return graph
 
-def valid_neighbors(cell, tiles, direction="up"):
-    vld_ngbrs = set()
-    for name in cell.options:        
-        for t in tiles:
-            if name == t.name:
-                tile = t
-        for ngbr in tile.__dict__[direction]:
-            vld_ngbrs.add(ngbr)
-    return vld_ngbrs
 
 def update_curses(screen, graph, names, dim):
     for row in range(dim):
