@@ -99,21 +99,29 @@ class Graph:
         did_update = self.update_state(c_idx)
         if did_update:
             if thisr > 0:
-                if(not self.grid[c_idx-self.row].collapsed):
-                    self.q.put(c_idx - self.row)
+                cur_nbr = c_idx-self.row
+                if(not self.grid[cur_nbr].collapsed and cur_nbr not in list(self.q.queue)):
+                    self.q.put(cur_nbr)
             if thisr < self.row-1:
-                if(not self.grid[c_idx+self.row].collapsed):
-                    self.q.put(c_idx + self.row) 
+                cur_nbr = c_idx+self.row
+                if(not self.grid[cur_nbr].collapsed and cur_nbr not in list(self.q.queue)):
+                    self.q.put(cur_nbr)
             if thisc > 0:
-                if(not self.grid[c_idx-1].collapsed):
-                    self.q.put(c_idx - 1) 
+                cur_nbr = c_idx - 1
+                if(not self.grid[cur_nbr].collapsed and cur_nbr not in list(self.q.queue)):
+                    self.q.put(cur_nbr)
             if thisc < self.col-1:
-                if(not self.grid[c_idx+1].collapsed):
-                    self.q.put(c_idx + 1) 
+                cur_nbr = c_idx+1
+                if(not self.grid[cur_nbr].collapsed and cur_nbr not in list(self.q.queue)):
+                    self.q.put(cur_nbr)
         counter = counter + 1
         return counter
             
-    def collapse_next(self):
+    def collapse_next(self,c_idx=None,c_state=None):
+        if c_idx is not None:
+            self.q.put(c_idx)
+            self.grid[c_idx].collapse(c_state)
+            return c_idx
         ordered = list(filter(lambda x: not x[1].collapsed,enumerate(self.grid))) # pull out all the non-collapsed cells
         if(len(ordered) == 0): #check if we're done
             return None

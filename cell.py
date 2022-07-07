@@ -12,8 +12,11 @@ class Cell:
         self.entropy = 1
         self.calculate_entropy()
     
-    def collapse(self):
-        self.state = np.random.choice([state for state,prob in self.options.items()], p=[prob for state,prob in self.options.items()])
+    def collapse(self,state=None):
+        if state is not None:
+            self.state = state
+        else:
+            self.state = np.random.choice([state for state,prob in self.options.items()], p=[prob for state,prob in self.options.items()])
         for state,prob in self.options.items():
             self.options[state] = 1 if state == self.state else 0
         self.collapsed = True
@@ -24,7 +27,7 @@ class Cell:
         if self.collapsed:
             return
         self.calculate_entropy()
-        if self.entropy < 0.2:
+        if self.entropy < 0.01:
             self.collapse()
             return
         else:
