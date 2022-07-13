@@ -28,6 +28,21 @@ class Graph:
             for name in self.names:
                 options[name]=self.tiles[name].b
             self.grid.append(Cell(options))
+    
+    def calc_realprobs(self): 
+        global_probs = {}
+        for state in self.names:
+            global_probs[state] = 0
+            for cell in self.grid:
+                global_probs[state] = global_probs[state] + cell.options[state]
+            global_probs[state] = global_probs[state] / len(self.grid)
+        return global_probs
+
+    def calc_entropy(self):
+        total_ent = 0
+        for cell in self.grid:
+            total_ent = total_ent + cell.entropy
+        return total_ent / len(self.grid)
 
     def calc_PN(self,c_idx):
         thisr,thisc = self.grid2coords(c_idx)
@@ -64,6 +79,7 @@ class Graph:
 
     def update_state(self,c_idx):
         self.grid[c_idx].update()
+        real_b = self.calc_realprobs()
         if self.grid[c_idx].collapsed:
             return True
         normalizer = 0
@@ -79,6 +95,7 @@ class Graph:
             pNS = self.calc_PNS(c_idx,state)
 
             pSN = pNS * pS / pN
+            pSN = pSN * (self.tiles[state].b / real_b[state]) #scaling factor
             normalizer = normalizer + pSN
             new_opts[state] = pSN
         
