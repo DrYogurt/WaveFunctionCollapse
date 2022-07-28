@@ -5,11 +5,12 @@ from cell import Cell
 from queue import Queue
 
 class Graph:
-    def __init__(self,row,col,tiles):
+    def __init__(self,row,col,tiles,do_scale=0):
         self.grid = []
         self.tiles = tiles
         self.row = row
         self.col = col
+        self.do_scale = do_scale
         self.names = list(tiles) # initialize cell options
         self.gen_graph()
         self.q = Queue()
@@ -79,15 +80,15 @@ class Graph:
 
     def update_state(self,c_idx):
         self.grid[c_idx].update()
-        real_b = self.calc_realprobs()
         if self.grid[c_idx].collapsed:
             return True
+        real_b = self.calc_realprobs()
         normalizer = 0
         new_opts = {}
         for state,prob in self.grid[c_idx].options.items():
             # P(S) is given as the prior probability of the cell
             pS = prob
-           
+            
             # P(N) is given as the probability of a specific neighbor state
             pN = self.calc_PN(c_idx)
             
@@ -95,12 +96,18 @@ class Graph:
             pNS = self.calc_PNS(c_idx,state)
 
             pSN = pNS * pS / pN
-            pSN = pSN * (self.tiles[state].b / real_b[state]) #scaling factor
+            
+            
+            if self.do_scale == 1:
+                pSN = 0 if real_b[state] == 0 else pSN * self.tiles[state].b / real_b[state] #scaling factor
             normalizer = normalizer + pSN
             new_opts[state] = pSN
         
         did_update = False
-        
+        if normalizer == 0:
+            print("uhoh")
+            self.grid[c_idx].collapse()
+            return True
         for state,prob in self.grid[c_idx].options.items():
             new_opts[state] = new_opts[state] / normalizer
             did_update = did_update or (round(new_opts[state],3) != round(self.grid[c_idx].options[state],3))
@@ -146,3 +153,15 @@ class Graph:
         self.q.put(ordered[0][0])
         ordered[0][1].collapse()
         return(ordered[0][0])
+
+    def __str__(self):
+        gstr = ""
+        for row in range(self.row):
+            for col in range(self.col):
+                c = self.grid(self.coords2grid(row,col))
+                if c.collapsed:
+                    gstr = gstr + c.state[0] + " "
+                else:
+                    gstr = gstr + "*" + " "
+            gstr = gstr + "\n"
+        return gstr

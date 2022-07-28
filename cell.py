@@ -27,7 +27,7 @@ class Cell:
         if self.collapsed:
             return
         self.calculate_entropy()
-        if self.entropy < 0.01:
+        if self.entropy < 0.22:
             self.collapse()
             return
         else:

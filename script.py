@@ -24,7 +24,6 @@ def from_adjacency_json(filename):
                 nbrs[names[j]] = adjacencies[i][j]
             tiles[names[i]] = Tile(name,b,nbrs,color)
         return tiles
-    return
 
 def update_curses(screen, graph, dim):
     for row in range(dim):
@@ -73,13 +72,13 @@ def draw_progress(screen,progress,length):
 
 if __name__ == "__main__":
     
-    dim = 100
+    dim = 30
     starting_tiles = 10
     
-    tiles = from_adjacency_json("four_test.json")
+    tiles = from_adjacency_json("nine_test.json")
 
     show_entropy = False #keep as false, adding in options for cool stuff later
-    show_updates = False
+    show_updates = True
 
     screen = curses.initscr()
 
@@ -89,7 +88,7 @@ if __name__ == "__main__":
         fig = plt.figure()
         ax = fig.add_subplot(111)
     
-    graph = Graph(dim,dim,tiles)
+    graph = Graph(dim,dim,tiles,do_scale=1)
     done = False
 
     for _ in range(starting_tiles):
